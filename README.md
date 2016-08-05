@@ -1,5 +1,4 @@
-# Angular ES6 Webpack 
-Angular Rezi API Authentication
+# Rezi-Elastic-Explorer
 
 ## Installation
 
