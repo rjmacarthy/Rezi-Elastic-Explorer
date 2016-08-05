@@ -52,7 +52,7 @@
             <div class="form-group row">
                 <label for="example-text-input" class="col-xs-2 col-form-label">DSL Query</label>
                 <div class="col-xs-10">
-                    <div ng-jsoneditor="loadTree" ng-model="vm.dslQueryParsed" options="vm.jviewer.options" style="width: 500px; height: 594px;"></div>
+                    <div ng-jsoneditor="loadTree" ng-model="vm.dslQueryParsed" options="vm.jviewer.options" style="width: 500px; height: 550px;"></div>
                 </div>
                 <div class="col-xs-offset-2 col-xs-10 margin-top">
                     <button ng-click="vm.changeOptions()" class="btn btn-sm btn-primary">Toggle Editor</button>
@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" ng-if="vm.results">
-            <div ng-jsoneditor ng-model="vm.results" options="vm.jviewerresults.options" style="width: 1000px; height: 904px;"></div>
+            <div ng-jsoneditor ng-model="vm.results" options="vm.jviewerresults.options" style="width: 1000px; height: 850px;"></div>
             <button class="margin-top btn-primary btn-sm btn" ng-click="vm.changeOptionsResults()" class="btn btn-sm btn-primary">Toggle Editor</button>
         </div>
     </div>
