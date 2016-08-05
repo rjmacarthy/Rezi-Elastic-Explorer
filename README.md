@@ -1,5 +1,4 @@
-# Angular ES6 Webpack 
-Rezi-Elastic-Explorer
+# Rezi-Elastic-Explorer
 
 ## Installation
 
