@@ -14,6 +14,8 @@ Run development server with webpack
 npm run dev
 ```
 
+You can also open the index.html file inside dist folder without running webpack dev server.
+
 ## Contributing
 
 Email : richard.macarthy@dezrez.com
