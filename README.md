@@ -1,12 +1,16 @@
 # Rezi-Elastic-Explorer
 
-## Installation
+## Why?
+
+The head plugin can be annoying sometimes when browsing data, this small app makes simple searches easier.  The app is for dezrez internal use at dezrez only and will not work outside of the dezrez local area network.
+
+## Installation for local dev environment.
 
 ```
   npm install 
 ```
 
-## Usage
+## Dev Usage
 
 Run development server with webpack
 
@@ -14,7 +18,9 @@ Run development server with webpack
 npm run dev
 ```
 
-You can also open the index.html file inside dist folder without running webpack dev server.
+## Usage without development
+
+You can also open the `index.html` file inside `dist` folder without running webpack dev server.
 
 ## Contributing
 
