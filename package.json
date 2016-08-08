@@ -4,7 +4,8 @@
   "description": "Angular Rezi ES6 Authentication",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --config webpack.config.js"
+    "dev": "webpack-dev-server --config webpack.config.js",
+    "build": "webpack --config webpack.config.prod.js"
   },
   "author": "",
   "license": "ISC",

@@ -6,14 +6,4 @@ import routesProvider from './routes/routesProvider';
 import uiRouter from 'angular-ui-router';
 
 angular.module('app', [ngRoute, uiRouter, 'ng.jsoneditor'])
-    .controller("IndexController", IndexController)
-    .provider('routesProvider', routesProvider)
-    .run(bootstrap)
-    .config(['$locationProvider', function($locationProvider) {
-        $locationProvider.html5Mode(true);
-    }]);;
-
-function bootstrap(routesProvider) {
-	sessionStorage.clear();
-    routesProvider.configureStates(routes.routes);
-}
+    .controller("IndexController", IndexController);
