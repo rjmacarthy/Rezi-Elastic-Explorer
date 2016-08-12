@@ -2,7 +2,7 @@
 
 ## Why?
 
-The head plugin can be annoying sometimes when browsing data, this small app makes simple searches easier.  The app is for dezrez internal use at dezrez only and will not work outside of the dezrez local area network.
+The head plugin can be annoying sometimes when browsing data, this small app makes simple searches easier.  The app is for dezrez internal use only and will not work outside of the local area network.
 
 ## Installation for local dev environment.
 
