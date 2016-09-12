@@ -1,31 +1,33 @@
+/*global angular*/
+
 import * as service from '../services/service';
 import * as _ from 'lodash';
 
-export default function ($scope, $rootScope, $location) {
+export default function ($scope) {
     var vm = this;
-    vm.environmentFilter = "";
+    vm.environmentFilter = '';
     vm.original = [];
-    vm.contract = "";
-    vm.textFilter = "";
+    vm.contract = '';
+    vm.textFilter = '';
     vm.jviewer = { options: { mode: 'code' } };
     vm.jviewerresults = { options: { mode: 'code' } };
-    vm.dslQueryParsed = { "size": 10, "from": 0 };
-    vm.environment = "http://prelive-search.dezrez.com:9200/";
-    vm.type = "_search";
+    vm.dslQueryParsed = { 'size': 10, 'from': 0 };
+    vm.environment = 'http://prelive-search.dezrez.com:9200/';
+    vm.type = '_search';
 
     vm.switchEnvironment = () => {
         vm.getAliases();
-    }
+    };
 
     vm.getAliases = () => {
         service.request(vm.environment, 'GET', '_aliases').end((err, { body }) => {
-            vm.aliases = _.map(body, (k, v) => { return _.first(_.keys(k.aliases)) }).filter((alias) => { return alias });
+            vm.aliases = _.map(body, (k) => { return _.first(_.keys(k.aliases)); }).filter((alias) => { return alias; });
             vm.alias = _.first(vm.aliases);
             vm.original = angular.copy(vm.aliases);
             $scope.$apply();
             vm.getMappings();
-        })
-    }
+        });
+    };
 
     vm.filter = () => {
         vm.aliases = vm.original;
@@ -39,7 +41,7 @@ export default function ($scope, $rootScope, $location) {
             }
         }
         vm.alias = _.first(vm.aliases);
-    }
+    };
 
 
     vm.getMappings = () => {
@@ -49,27 +51,57 @@ export default function ($scope, $rootScope, $location) {
             vm.contract = _.first(vm.contracts);
             $scope.$apply();
         });
-    }
+    };
 
     vm.loadTree = () => {
         try {
             vm.dslQueryParsed = JSON.parse(vm.dslQuery);
         } catch (e) {
-            alert("Invalid JSON")
+            alert('Invalid JSON');
         }
-    }
+    };
 
     vm.changeOptions = () => {
         vm.jviewer.options.mode = vm.jviewer.options.mode == 'tree' ? 'code' : 'tree';
-    }
+    };
 
     vm.changeOptionsResults = () => {
         vm.jviewerresults.options.mode = vm.jviewerresults.options.mode == 'tree' ? 'code' : 'tree';
-    }
+    };
+
+    vm.getMapping = () => {
+        service.request(vm.environment, 'GET', vm.alias + '/' + vm.contract + '/_mapping').end((err, data) => {
+            vm.mapping = data.body;
+            $scope.$apply();
+        });
+    };
+
+    vm.getContract = () => {
+        if (vm.alias && vm.contract && vm.contractId) {
+            service.request(vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId).end((err, data) => {
+                vm.dataContract = { detect_noop: false, doc: data.body._source };
+                $scope.$apply();
+            });
+        } else {
+            alert('Need all data...');
+        }
+    };
+
+    vm.updateContract = () => {
+        if (vm.alias && vm.contract && vm.contractId) {
+            service.request(vm.environment, 'POST', vm.alias + '/' + vm.contract + '/' + vm.contractId + '/_update', null, vm.dataContract).end(() => {
+                alert('Contract Updated!');
+                $scope.$apply();
+            });
+
+        } else {
+            alert('Need all data...');
+        }
+    };
 
     vm.search = () => {
         if (vm.alias && vm.contract && vm.dslQueryParsed) {
-            if (vm.type === "_search") {
+            if (vm.type === '_search') {
                 service.request(vm.environment, 'POST', vm.alias + '/' + vm.contract + '/_search', null, vm.dslQueryParsed).end((err, data) => {
                     vm.results = data.body;
                     $scope.$apply();
@@ -80,7 +112,6 @@ export default function ($scope, $rootScope, $location) {
                     $scope.$apply();
                 });
             }
-
         }
-    }
+    };
 }
