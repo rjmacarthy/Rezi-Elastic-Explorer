@@ -22,6 +22,7 @@
     "jsoneditor": "^5.5.6",
     "lodash": "^4.14.1",
     "ngstorage": "^0.3.10",
+    "rollup": "^0.34.10",
     "superagent": "^1.8.3",
     "ui-router": "^1.0.0-alpha0",
     "webpack": "^1.12.14",
