@@ -28,9 +28,81 @@
 </head>
 
 <body>
-    <div ng-app="app">
+    <div ng-app='app'>
+
         <div ng-controller="IndexController as vm" ng-init="vm.getAliases()">
-            <div class="row">
+            <ul class="nav nav-tabs">
+                <li ng-click="showUpdate = false" role="presentation" ng-class=" {'active' : !showUpdate}"><a>Search</a></li>
+                <li ng-click="showUpdate = true" role="presentation" ng-class=" {'active' : showUpdate}"><a>Update Contract</a></li>
+            </ul>
+            <div class="row" ng-if="showUpdate">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h5 class="text-success bold">
+                        {{vm.environment + vm.alias + '/' + vm.contract + '/' + vm.contractId}}
+                    </h5>
+                </div>
+                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                    <div class="form-group row">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Environment</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.switchEnvironment()" ng-model="vm.environment">
+                        <option value="http://prelive-search.dezrez.com:9200/">Pre-Live</option>
+                        <option value="http://search.dezrez.com:9200/">Live</option>
+                    </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Search alias</label>
+                        <div class="col-xs-10">
+                            <input type="text" ng-model="vm.textFilter" ng-keyup="$event.keyCode == 13 && vm.filter()" class="form-control" placeholder="Search alias"></input>
+                        </div>
+                        <div class="col-xs-offset-2 col-xs-10 margin-top">
+                            <button ng-click="vm.filter()" class="btn btn-sm btn-primary">Search alias</button>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.aliases">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Alias</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.getMappings()" ng-model="vm.alias" ng-options="a as a for a in vm.aliases"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Select Data Contract</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.getMapping()" ng-model="vm.contract" ng-options="a as a for a in vm.contracts">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Id</label>
+                        <div class="col-xs-10">
+                            <input type="text" ng-model="vm.contractId" class="form-control" placeholder="Contract Id..."></input>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Parent Id?</label>
+                        <div class="col-xs-10">
+                            <input type="text" ng-model="vm.parentId" class="form-control" placeholder="ParentId Id..."></input>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label"></label>
+                        <div class="col-xs-10">
+                            <button ng-click="vm.getContract()" class="btn btn-sm btn-success">Get contract</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-7">
+                    <div class="form-group row" ng-if="vm.contracts">
+                       <div ng-jsoneditor="loadTree" ng-model="vm.dataContract" options="vm.jviewer.options" style="width: 900px; height: 750px;"></div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <button ng-click="vm.changeOptions()" class="btn btn-sm btn-primary">Toggle Editor</button>
+                        <button ng-click="vm.updateContract()" class="btn btn-sm btn-success">Update</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-if="!showUpdate">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h5 class="text-success bold">
                         {{vm.environment + vm.alias + '/' + vm.contract + '/_search'}}
@@ -46,7 +118,6 @@
                     </select>
                         </div>
                     </div>
-
                     <div class="form-group row">
                         <label for="example-text-input" class="col-xs-2 col-form-label">Search alias</label>
                         <div class="col-xs-10">
@@ -66,7 +137,7 @@
                         <label for="example-text-input" class="col-xs-2 col-form-label">Select Data Contract</label>
                         <div class="col-xs-10">
                             <select class="form-control" ng-model="vm.contract" ng-options="a as a for a in vm.contracts">
-                     </select>
+                            </select>
                         </div>
                     </div>
 
@@ -74,16 +145,16 @@
                         <label for="example-text-input" class="col-xs-2 col-form-label">Search / Mapping</label>
                         <div class="col-xs-10">
                             <select class="form-control" ng-model="vm.type">
-                        <option value="_search">Search</option>
-                        <option value="_mapping">Mapping</option>
-                    </select>
+                                <option value="_search">Search</option>
+                                <option value="_mapping">Mapping</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group row">
                         <label for="example-text-input" class="col-xs-2 col-form-label">DSL Query</label>
                         <div class="col-xs-10">
-                            <div ng-jsoneditor="loadTree" ng-model="vm.dslQueryParsed" options="vm.jviewer.options" style="width: 500px; height: 550px;"></div>
+                            <div ng-jsoneditor="loadTree" ng-model="vm.dslQueryParsed" options="vm.jviewer.options" style="width: 600px; height: 550px;"></div>
                         </div>
                         <div class="col-xs-offset-2 col-xs-10 margin-top">
                             <button ng-click="vm.changeOptions()" class="btn btn-sm btn-primary">Toggle Editor</button>
@@ -96,12 +167,14 @@
                     <button class="margin-top btn-primary btn-sm btn" ng-click="vm.changeOptionsResults()" class="btn btn-sm btn-primary">Toggle Editor</button>
                 </div>
             </div>
+
+
+
         </div>
     </div>
-
 </body>
+
+</html>
 
 <script src="https://cdn.rawgit.com/josdejong/jsoneditor/master/dist/jsoneditor.min.js"></script>
 <script src="https://cdn.rawgit.com/angular-tools/ng-jsoneditor/master/ng-jsoneditor.js"></script>
-
-</html>
