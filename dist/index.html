@@ -29,7 +29,6 @@
 
 <body>
     <div ng-app='app'>
-
         <div ng-controller="IndexController as vm" ng-init="vm.getAliases()">
             <ul class="nav nav-tabs">
                 <li ng-click="showUpdate = false" role="presentation" ng-class=" {'active' : !showUpdate}"><a>Search</a></li>
@@ -94,7 +93,7 @@
                 </div>
                 <div class="col-xs-7">
                     <div class="form-group row" ng-if="vm.contracts">
-                       <div ng-jsoneditor="loadTree" ng-model="vm.dataContract" options="vm.jviewer.options" style="width: 900px; height: 750px;"></div>
+                        <div ng-jsoneditor="loadTree" ng-model="vm.dataContract" options="vm.jviewer.options" style="width: 900px; height: 750px;"></div>
                     </div>
                     <div class="form-group row" ng-if="vm.contracts">
                         <button ng-click="vm.changeOptions()" class="btn btn-sm btn-primary">Toggle Editor</button>
@@ -140,7 +139,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="form-group row" ng-if="vm.contracts">
                         <label for="example-text-input" class="col-xs-2 col-form-label">Search / Mapping</label>
                         <div class="col-xs-10">
@@ -150,7 +148,13 @@
                             </select>
                         </div>
                     </div>
-
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Standard Query</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.handleStandardQueryChange(vm.standardQuery)" ng-model="vm.standardQuery" ng-options="query as query.name for query in vm.standardQueries">
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <label for="example-text-input" class="col-xs-2 col-form-label">DSL Query</label>
                         <div class="col-xs-10">
@@ -161,20 +165,23 @@
                             <button ng-click="vm.search()" class="btn btn-sm btn-success">Search</button>
                         </div>
                     </div>
+                    <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Select Data Contract</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-options="query as query.name for query in vm.standardQueries">
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5" ng-if="vm.results">
                     <div ng-jsoneditor ng-model="vm.results" options="vm.jviewerresults.options" style="width: 1000px; height: 850px;"></div>
                     <button class="margin-top btn-primary btn-sm btn" ng-click="vm.changeOptionsResults()" class="btn btn-sm btn-primary">Toggle Editor</button>
                 </div>
             </div>
-
-
-
         </div>
     </div>
 </body>
 
 </html>
-
 <script src="https://cdn.rawgit.com/josdejong/jsoneditor/master/dist/jsoneditor.min.js"></script>
 <script src="https://cdn.rawgit.com/angular-tools/ng-jsoneditor/master/ng-jsoneditor.js"></script>

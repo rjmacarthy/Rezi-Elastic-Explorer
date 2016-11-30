@@ -1,6 +1,7 @@
 /*global angular*/
 
 import * as service from '../services/service';
+import * as queries from '../services/queries';
 import * as _ from 'lodash';
 
 export default function ($scope) {
@@ -19,10 +20,11 @@ export default function ($scope) {
             mode: 'code'
         }
     };
-    vm.dslQueryParsed = {
-        'size': 10,
-        'from': 0
-    };
+
+    vm.standardQueries = queries.standardQueries();
+
+    vm.dslQueryParsed = queries.getDsl();
+
     vm.environment = 'http://prelive-search.dezrez.com:9200/';
     vm.type = '_search';
 
@@ -95,6 +97,10 @@ export default function ($scope) {
         });
     };
 
+    vm.handleStandardQueryChange = (query) => {
+        vm.dslQueryParsed = query.data;
+    };
+
     vm.getContract = () => {
         if (vm.alias && vm.contract && vm.contractId) {
             if (vm.parentId) {
@@ -133,8 +139,13 @@ export default function ($scope) {
         }
     };
 
+    vm.saveDSL = () => {
+        sessionStorage.setItem('ES-DSL-QUERY', JSON.stringify(vm.dslQueryParsed));
+    };
+
     vm.search = () => {
         if (vm.alias && vm.contract && vm.dslQueryParsed) {
+
             if (vm.type === '_search') {
                 service.request(vm.environment, 'POST', vm.alias + '/' + vm.contract + '/_search', null, vm.dslQueryParsed).end((err, data) => {
                     vm.results = data.body;
