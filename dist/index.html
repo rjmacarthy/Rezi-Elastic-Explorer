@@ -80,6 +80,12 @@
                         </div>
                     </div>
                     <div class="form-group row" ng-if="vm.contracts">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Parent Id?</label>
+                        <div class="col-xs-10">
+                            <input type="text" ng-model="vm.parentId" class="form-control" placeholder="ParentId Id..."></input>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.contracts">
                         <label for="example-text-input" class="col-xs-2 col-form-label"></label>
                         <div class="col-xs-10">
                             <button ng-click="vm.getContract()" class="btn btn-sm btn-success">Get contract</button>

@@ -9,9 +9,20 @@ export default function ($scope) {
     vm.original = [];
     vm.contract = '';
     vm.textFilter = '';
-    vm.jviewer = { options: { mode: 'code' } };
-    vm.jviewerresults = { options: { mode: 'code' } };
-    vm.dslQueryParsed = { 'size': 10, 'from': 0 };
+    vm.jviewer = {
+        options: {
+            mode: 'code'
+        }
+    };
+    vm.jviewerresults = {
+        options: {
+            mode: 'code'
+        }
+    };
+    vm.dslQueryParsed = {
+        'size': 10,
+        'from': 0
+    };
     vm.environment = 'http://prelive-search.dezrez.com:9200/';
     vm.type = '_search';
 
@@ -20,8 +31,14 @@ export default function ($scope) {
     };
 
     vm.getAliases = () => {
-        service.request(vm.environment, 'GET', '_aliases').end((err, { body }) => {
-            vm.aliases = _.map(body, (k) => { return _.first(_.keys(k.aliases)); }).filter((alias) => { return alias; });
+        service.request(vm.environment, 'GET', '_aliases').end((err, {
+            body
+        }) => {
+            vm.aliases = _.map(body, (k) => {
+                return _.first(_.keys(k.aliases));
+            }).filter((alias) => {
+                return alias;
+            });
             vm.alias = _.first(vm.aliases);
             vm.original = angular.copy(vm.aliases);
             $scope.$apply();
@@ -46,7 +63,9 @@ export default function ($scope) {
 
     vm.getMappings = () => {
         vm.contracts = [];
-        service.request(vm.environment, 'GET', vm.alias).end((err, { body }) => {
+        service.request(vm.environment, 'GET', vm.alias).end((err, {
+            body
+        }) => {
             vm.contracts = _.sortBy(_.keys(body[_.first(_.keys(body))].mappings));
             vm.contract = _.first(vm.contracts);
             $scope.$apply();
@@ -78,10 +97,20 @@ export default function ($scope) {
 
     vm.getContract = () => {
         if (vm.alias && vm.contract && vm.contractId) {
-            service.request(vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId).end((err, data) => {
-                vm.dataContract = { detect_noop: false, doc: data.body._source };
-                $scope.$apply();
-            });
+            if (vm.parentId) {
+                service.request(vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId).end((err, data) => {
+                    vm.dataContract = data.body._source;
+                    $scope.$apply();
+                });
+            } else {
+                service.request(vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId).end((err, data) => {
+                    vm.dataContract = {
+                        detect_noop: false,
+                        doc: data.body._source
+                    };
+                    $scope.$apply();
+                });
+            }
         } else {
             alert('Need all data...');
         }
@@ -89,11 +118,16 @@ export default function ($scope) {
 
     vm.updateContract = () => {
         if (vm.alias && vm.contract && vm.contractId) {
-            service.request(vm.environment, 'POST', vm.alias + '/' + vm.contract + '/' + vm.contractId + '/_update', null, vm.dataContract).end(() => {
-                alert('Contract Updated!');
-                $scope.$apply();
-            });
-
+            if (vm.parentId) {
+                service.request(vm.environment, 'PUT', vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId, null, vm.dataContract).end(() => {
+                    $scope.$apply();
+                });
+            } else {
+                service.request(vm.environment, 'POST', vm.alias + '/' + vm.contract + '/' + vm.contractId + '/_update', null, vm.dataContract).end(() => {
+                    alert('Contract Updated!');
+                    $scope.$apply();
+                });
+            }
         } else {
             alert('Need all data...');
         }
