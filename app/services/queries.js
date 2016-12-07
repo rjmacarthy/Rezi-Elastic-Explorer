@@ -75,7 +75,31 @@ const standardQueries = () => {
     }]
 }
 
+const removeAlias = (alias, index) => {
+    return {
+        "actions": [{
+            "remove": {
+                "index": index,
+                "alias": alias
+            }
+        }]
+    }
+}
+
+const addAlias = (alias, index) => {
+    return {
+        "actions": [{
+            "add": {
+                "index": index,
+                "alias": alias
+            }
+        }]
+    }
+}
+
 export {
     standardQueries,
-    getDsl
+    getDsl,
+    addAlias,
+    removeAlias
 }

@@ -32486,6 +32486,7 @@
 	    vm.original = [];
 	    vm.contract = '';
 	    vm.textFilter = '';
+	    vm.showIndex = true;
 	    vm.jviewer = {
 	        options: {
 	            mode: 'code'
@@ -32519,7 +32520,15 @@
 	            });
 	            vm.alias = _.first(vm.aliases);
 	            vm.original = angular.copy(vm.aliases);
+
+	            vm.indexes = _.keys(body);
+
+	            vm.index = _.first(vm.indexes);
+
+	            vm.originalIndex = angular.copy(vm.indexes);
+
 	            $scope.$apply();
+	            vm.getIndex(vm.index);
 	            vm.getMappings();
 	        });
 	    };
@@ -32538,10 +32547,40 @@
 	        vm.alias = _.first(vm.aliases);
 	    };
 
+	    vm.filterIndex = function () {
+	        vm.indexes = vm.originalIndex;
+	        if (vm.textFilterIndex) {
+	            vm.indexes = _.filter(vm.indexes, function (index) {
+	                return index.match(vm.textFilterIndex);
+	            });
+	            vm.index = _.first(vm.indexes);
+	            vm.getIndex();
+	        }
+	    };
+
+	    vm.getIndex = function (index) {
+	        var index = index ? index : vm.index;
+	        service.request(vm.environment, 'GET', index).end(function (err, _ref2) {
+	            var body = _ref2.body;
+
+	            vm.indexName = _.first(_.keys(body));
+	            vm.aliasName = _.first(_.keys(body[_.first(_.keys(body))].aliases));
+	            vm.indexInfo = body;
+	            vm.getIndexInfo(vm.indexName);
+	            $scope.$apply();
+	        });
+	    };
+
+	    vm.getIndexInfo = function (name) {
+	        vm.indicy = _.find(vm.indcies, function (ind) {
+	            return ind.index === name;
+	        });
+	    };
+
 	    vm.getMappings = function () {
 	        vm.contracts = [];
-	        service.request(vm.environment, 'GET', vm.alias).end(function (err, _ref2) {
-	            var body = _ref2.body;
+	        service.request(vm.environment, 'GET', vm.alias).end(function (err, _ref3) {
+	            var body = _ref3.body;
 
 	            vm.contracts = _.sortBy(_.keys(body[_.first(_.keys(body))].mappings));
 	            vm.contract = _.first(vm.contracts);
@@ -32597,10 +32636,46 @@
 	        }
 	    };
 
+	    vm.addAlias = function () {
+	        var addPayload = queries.addAlias(vm.newAliasName, vm.indexName);
+	        service.request(vm.environment, 'POST', '_aliases', null, addPayload).end(function (err, _ref4) {
+	            var body = _ref4.body;
+
+	            if (body.acknowledged) {
+	                alert("Alias Added");
+	                vm.aliasName = vm.newAliasName;
+	                vm.newAliasName = '';
+	            }
+	            $scope.$apply();
+	        });
+	    };
+
+	    vm.deleteAlias = function () {
+	        var deletePayload = queries.removeAlias(vm.aliasName, vm.indexName);
+	        service.request(vm.environment, 'POST', '_aliases', null, deletePayload).end(function (err, _ref5) {
+	            var body = _ref5.body;
+
+	            if (body.acknowledged) {
+	                alert("Alias Removed");
+	            }
+	            vm.aliasName = '';
+	            vm.newAliasName = '';
+	            $scope.$apply();
+	        });
+	    };
+
+	    vm.catIndicies = function () {
+	        service.request(vm.environment, 'GET', '_cat/indices?format=json&pretty').end(function (err, data) {
+	            vm.indcies = data.body;
+	            vm.getIndexInfo(vm.index);
+	            $scope.$apply();
+	        });
+	    };
+
 	    vm.updateContract = function () {
 	        if (vm.alias && vm.contract && vm.contractId) {
 	            if (vm.parentId) {
-	                service.request(vm.environment, 'PUT', vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId, null, vm.dataContract).end(function () {
+	                service.request(vm.environment, 'PUT', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId, null, vm.dataContract).end(function () {
 	                    $scope.$apply();
 	                });
 	            } else {
@@ -32634,6 +32709,8 @@
 	            }
 	        }
 	    };
+
+	    vm.catIndicies();
 	};
 
 	var _service = __webpack_require__(5);
@@ -34281,8 +34358,32 @@
 	    }];
 	};
 
+	var removeAlias = function removeAlias(alias, index) {
+	    return {
+	        "actions": [{
+	            "remove": {
+	                "index": index,
+	                "alias": alias
+	            }
+	        }]
+	    };
+	};
+
+	var addAlias = function addAlias(alias, index) {
+	    return {
+	        "actions": [{
+	            "add": {
+	                "index": index,
+	                "alias": alias
+	            }
+	        }]
+	    };
+	};
+
 	exports.standardQueries = standardQueries;
 	exports.getDsl = getDsl;
+	exports.addAlias = addAlias;
+	exports.removeAlias = removeAlias;
 
 /***/ },
 /* 14 */

@@ -31,8 +31,9 @@
     <div ng-app='app'>
         <div ng-controller="IndexController as vm" ng-init="vm.getAliases()">
             <ul class="nav nav-tabs">
-                <li ng-click="showUpdate = false" role="presentation" ng-class=" {'active' : !showUpdate}"><a>Search</a></li>
-                <li ng-click="showUpdate = true" role="presentation" ng-class=" {'active' : showUpdate}"><a>Update Contract</a></li>
+                <li ng-click="showUpdate = false; showIndexManagement = false; vm.showIndex = true" role="presentation" ng-class=" {'active' : vm.showIndex}"><a>Search</a></li>
+                <li ng-click="showUpdate = true; showIndexManagement = false; vm.showIndex = false" role="presentation" ng-class=" {'active' : showUpdate}"><a>Update Contract</a></li>
+                <li ng-click="showIndexManagement = true; showUpdate = false; vm.showIndex = false" role="presentation" ng-class=" {'active' : showIndexManagement}"><a>Index Management</a></li>
             </ul>
             <div class="row" ng-if="showUpdate">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -101,7 +102,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row" ng-if="!showUpdate">
+            <!-- UPDATE TAB-->
+            <div class="row" ng-if="vm.showIndex">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h5 class="text-success bold">
                         {{vm.environment + vm.alias + '/' + vm.contract + '/_search'}}
@@ -112,9 +114,9 @@
                         <label for="example-text-input" class="col-xs-2 col-form-label">Environment</label>
                         <div class="col-xs-10">
                             <select class="form-control" ng-change="vm.switchEnvironment()" ng-model="vm.environment">
-                        <option value="http://prelive-search.dezrez.com:9200/">Pre-Live</option>
-                        <option value="http://search.dezrez.com:9200/">Live</option>
-                    </select>
+                                <option value="http://prelive-search.dezrez.com:9200/">Pre-Live</option>
+                                <option value="http://search.dezrez.com:9200/">Live</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -161,15 +163,9 @@
                             <div ng-jsoneditor="loadTree" ng-model="vm.dslQueryParsed" options="vm.jviewer.options" style="width: 600px; height: 550px;"></div>
                         </div>
                         <div class="col-xs-offset-2 col-xs-10 margin-top">
+                            <button ng-click="vm.saveDSL()" class="btn btn-sm btn-warning">Save DSL To Session</button>
                             <button ng-click="vm.changeOptions()" class="btn btn-sm btn-primary">Toggle Editor</button>
                             <button ng-click="vm.search()" class="btn btn-sm btn-success">Search</button>
-                        </div>
-                    </div>
-                    <div class="form-group row" ng-if="vm.contracts">
-                        <label for="example-text-input" class="col-xs-2 col-form-label">Select Data Contract</label>
-                        <div class="col-xs-10">
-                            <select class="form-control" ng-options="query as query.name for query in vm.standardQueries">
-                            </select>
                         </div>
                     </div>
                 </div>
@@ -178,6 +174,59 @@
                     <button class="margin-top btn-primary btn-sm btn" ng-click="vm.changeOptionsResults()" class="btn btn-sm btn-primary">Toggle Editor</button>
                 </div>
             </div>
+            <!-- Index management -->
+            <div ng-if="showIndexManagement">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h5 class="text-success bold">
+                        {{vm.environment}}
+                    </h5>
+                </div>
+                <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                    <div class="form-group row">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Environment</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.switchEnvironment()" ng-model="vm.environment">
+                                <option value="http://prelive-search.dezrez.com:9200/">Pre-Live</option>
+                                <option value="http://search.dezrez.com:9200/">Live</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Search index</label>
+                        <div class="col-xs-10">
+                            <input type="text" ng-model="vm.textFilterIndex" ng-keyup="$event.keyCode == 13 && vm.filterIndex()" class="form-control"
+                                placeholder="Search index"></input>
+                        </div>
+                        <div class="col-xs-offset-2 col-xs-10 margin-top">
+                            <button ng-click="vm.filterIndex()" class="btn btn-sm btn-primary">Search index</button>
+                        </div>
+                    </div>
+                    <div class="form-group row" ng-if="vm.indexes">
+                        <label for="example-text-input" class="col-xs-2 col-form-label">Index</label>
+                        <div class="col-xs-10">
+                            <select class="form-control" ng-change="vm.getIndex(vm.index)" ng-model="vm.index" ng-options="a as a for a in vm.indexes"></select>
+                        </div>
+                    </div>
+                    <hr>
+                    <h4>Alias Settings</h4>
+                    <h5>
+                        Alias Found : <span class="text-success">{{vm.aliasName}}</span>
+                    </h5>
+                    <div ng-if="vm.aliasName">
+                        <button class="btn-danger btn btn-sm" ng-click="vm.deleteAlias()">Delete Alias</button>
+                    </div>
+                    <div ng-if="!vm.aliasName">
+                        <input type="text" ng-model="vm.newAliasName" ng-keyup="$event.keyCode == 13 && vm.addAlias()" class="form-control" placeholder="Alias name"></input>
+                        <button class="btn-primary btn btn-sm margin-top" ng-click="vm.addAlias()">Add alias</button>
+                    </div>
+                    <div ng-if="vm.indicy" class="margin-top">
+                        <hr>
+                        <h4>Index information</h4>
+                        <pre> {{vm.indicy | json}}</pre>
+                    </div>
+                </div>
+            </div>
+            <!---->
         </div>
     </div>
 </body>

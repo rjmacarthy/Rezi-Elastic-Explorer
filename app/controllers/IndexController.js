@@ -10,6 +10,7 @@ export default function ($scope) {
     vm.original = [];
     vm.contract = '';
     vm.textFilter = '';
+    vm.showIndex = true;
     vm.jviewer = {
         options: {
             mode: 'code'
@@ -28,6 +29,8 @@ export default function ($scope) {
     vm.environment = 'http://prelive-search.dezrez.com:9200/';
     vm.type = '_search';
 
+   
+
     vm.switchEnvironment = () => {
         vm.getAliases();
     };
@@ -43,7 +46,15 @@ export default function ($scope) {
             });
             vm.alias = _.first(vm.aliases);
             vm.original = angular.copy(vm.aliases);
+
+            vm.indexes = _.keys(body);
+
+            vm.index = _.first(vm.indexes);
+            
+            vm.originalIndex = angular.copy(vm.indexes);
+
             $scope.$apply();
+            vm.getIndex(vm.index);
             vm.getMappings();
         });
     };
@@ -62,6 +73,35 @@ export default function ($scope) {
         vm.alias = _.first(vm.aliases);
     };
 
+    vm.filterIndex = () => {
+        vm.indexes = vm.originalIndex;
+        if (vm.textFilterIndex) {
+            vm.indexes = _.filter(vm.indexes, (index) => {
+                return index.match(vm.textFilterIndex);
+            });
+            vm.index = _.first(vm.indexes);
+            vm.getIndex();
+        }
+    };
+
+    vm.getIndex = (index) => {
+        var index = index ? index : vm.index;
+        service.request(vm.environment, 'GET', index).end((err, {
+            body
+        }) => {
+            vm.indexName = _.first(_.keys(body));
+            vm.aliasName = _.first(_.keys(body[_.first(_.keys(body))].aliases));
+            vm.indexInfo = body;
+            vm.getIndexInfo(vm.indexName);
+            $scope.$apply();
+        });
+    }
+
+    vm.getIndexInfo = (name) => {
+        vm.indicy = _.find(vm.indcies, (ind)=>{
+            return ind.index === name;
+        });
+    }
 
     vm.getMappings = () => {
         vm.contracts = [];
@@ -122,10 +162,46 @@ export default function ($scope) {
         }
     };
 
+    vm.addAlias = () => {
+        var addPayload = queries.addAlias(vm.newAliasName, vm.indexName);
+        service.request(vm.environment, 'POST', '_aliases', null, addPayload).end((err, {
+            body
+        }) => {
+            if (body.acknowledged) {
+                alert("Alias Added");
+                vm.aliasName = vm.newAliasName;
+                vm.newAliasName = '';
+            }
+            $scope.$apply();
+        });
+    }
+
+    vm.deleteAlias = () => {
+        var deletePayload = queries.removeAlias(vm.aliasName, vm.indexName);
+        service.request(vm.environment, 'POST', '_aliases', null, deletePayload).end((err, {
+            body
+        }) => {
+            if (body.acknowledged) {
+                alert("Alias Removed");
+            }
+            vm.aliasName = '';
+            vm.newAliasName = '';
+            $scope.$apply();
+        });
+    }
+
+    vm.catIndicies = () => {
+        service.request(vm.environment, 'GET', '_cat/indices?format=json&pretty').end((err, data) => {
+            vm.indcies = data.body;
+            vm.getIndexInfo(vm.index);
+            $scope.$apply();
+        });
+    };
+
     vm.updateContract = () => {
         if (vm.alias && vm.contract && vm.contractId) {
             if (vm.parentId) {
-                service.request(vm.environment, 'PUT', vm.environment, 'GET', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId, null, vm.dataContract).end(() => {
+                service.request(vm.environment, 'PUT', vm.alias + '/' + vm.contract + '/' + vm.contractId + '?parentId=' + vm.parentId, null, vm.dataContract).end(() => {
                     $scope.$apply();
                 });
             } else {
@@ -159,4 +235,6 @@ export default function ($scope) {
             }
         }
     };
+
+     vm.catIndicies();
 }
